@@ -5,14 +5,8 @@
  */
 class UserAgentTest extends PHPUnit_Framework_TestCase
 {
-    protected $detect;
     protected static $ualist = array();
     protected static $json;
-
-    public function setUp()
-    {
-        $this->detect = new Mobile_Detect;
-    }
 
     public static function generateJson()
     {
@@ -44,7 +38,6 @@ class UserAgentTest extends PHPUnit_Framework_TestCase
             }
         }
 
-
         //uses the UA_List.inc.php to generate a json file
         if (file_exists($jsonFile) && !is_writable($jsonFile)) {
             throw new RuntimeException("Need to be able to create/update $jsonFile from UA_List.inc.php.");
@@ -53,8 +46,6 @@ class UserAgentTest extends PHPUnit_Framework_TestCase
         if (!is_writable(dirname($jsonFile))) {
             throw new RuntimeException("Insufficient permissions to create this file: $jsonFile");
         }
-
-
 
         //print_r($list['Acer']); exit;
 
@@ -157,24 +148,25 @@ class UserAgentTest extends PHPUnit_Framework_TestCase
         }
 
         //setup
-        $this->detect->setUserAgent($userAgent);
+        $md = new Mobile_Detect;
+        $md->setUserAgent($userAgent);
 
         //is mobile?
-        $this->assertEquals($this->detect->isMobile(), $isMobile);
+        $this->assertEquals($md->isMobile(), $isMobile);
 
         //is tablet?
-        $this->assertEquals($this->detect->isTablet(), $isTablet, 'FAILED: ' . $userAgent . ' isTablet: ' . $isTablet);
+        $this->assertEquals($md->isTablet(), $isTablet, 'FAILED: ' . $userAgent . ' isTablet: ' . $isTablet);
 
         if (isset($version)) {
             foreach ($version as $condition => $assertion) {
-                $this->assertEquals($assertion, $this->detect->version($condition), 'FAILED UA (version("'.$condition.'")): '.$userAgent);
+                $this->assertEquals($assertion, $md->version($condition), 'FAILED UA (version("'.$condition.'")): '.$userAgent);
             }
         }
 
         //version property tests
         if (isset($version)) {
             foreach ($version as $property => $stringVersion) {
-                $v = $this->detect->version($property);
+                $v = $md->version($property);
                 $this->assertSame($stringVersion, $v);
             }
         }
@@ -183,7 +175,7 @@ class UserAgentTest extends PHPUnit_Framework_TestCase
         //@todo: vendor test. The below is theoretical, but fails 50% of the tests...
         /*if (isset($vendor)) {
             $method = "is$vendor";
-            $this->assertTrue($this->detect->{$method}(), "Expected Mobile_Detect::{$method}() to be true.");
+            $this->assertTrue($md->{$method}(), "Expected Mobile_Detect::{$method}() to be true.");
         }*/
     }
 }
